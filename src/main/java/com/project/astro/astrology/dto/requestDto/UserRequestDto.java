@@ -16,6 +16,8 @@ public class UserRequestDto {
     private String dob;
     private String birthTime;
     private String birthPlace;
+    private String state;
+    private String city;
     private Boolean isAstrologer;
     private Boolean isAdmin;
     private Boolean isApproved;

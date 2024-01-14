@@ -8,6 +8,8 @@ import com.project.astro.astrology.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Date;
+
 @Mapper(componentModel = "spring")
 public interface ReplyMapper extends CommonMapper<Reply, ReplyResponseDto>{
 

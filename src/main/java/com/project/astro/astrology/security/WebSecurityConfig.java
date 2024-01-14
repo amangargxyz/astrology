@@ -1,5 +1,6 @@
 package com.project.astro.astrology.security;
 
+import com.project.astro.astrology.model.ActiveUserStore;
 import com.project.astro.astrology.security.jwt.AuthEntryPointJwt;
 import com.project.astro.astrology.security.jwt.AuthTokenFilter;
 import com.project.astro.astrology.security.services.UserDetailsServiceImpl;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -61,13 +63,13 @@ public class WebSecurityConfig {
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> 
-          auth.requestMatchers("/api/auth/**").permitAll()
-                  .requestMatchers("/api/test/**").permitAll()
-                  .requestMatchers("/astrology/user/**").permitAll()
-                  .requestMatchers("/astrology/astrologer/**").permitAll()
-                  .requestMatchers("/astrology/client/**").permitAll()
-                  .requestMatchers("/astrology/query/**").permitAll()
-                  .requestMatchers("/astrology/reply/**").permitAll()
+          auth.requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/api/otp/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/astrology/user/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/astrology/astrologer/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/astrology/client/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/astrology/query/**")).permitAll()
+                  .requestMatchers(new AntPathRequestMatcher("/astrology/reply/**")).permitAll()
                   .anyRequest().authenticated()
         );
     
@@ -89,5 +91,10 @@ public class WebSecurityConfig {
     source.registerCorsConfiguration("/**", corsConfig);
 
     return new CorsFilter(source);
+  }
+
+  @Bean
+  public ActiveUserStore activeUserStore(){
+    return new ActiveUserStore();
   }
 }

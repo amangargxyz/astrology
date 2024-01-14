@@ -14,6 +14,9 @@ import com.project.astro.astrology.repository.RoleRepository;
 import com.project.astro.astrology.repository.UserRepository;
 import com.project.astro.astrology.security.jwt.JwtUtils;
 import com.project.astro.astrology.security.services.UserDetailsImpl;
+import com.project.astro.astrology.service.LoggedUser;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -56,58 +55,108 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
+  @Autowired
+  ActiveUserStore activeUserStore;
+
   @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 
     Optional<User> userOpt = userRepository.findByUsername(loginRequest.getUsername());
     Map<String, String> map = new HashMap<>();
-    if(userOpt.isPresent()) {
-      User user = userOpt.get();
-      if(!user.getIsApproved()) {
-        map.put("message", "User not verified");
-        return new ResponseEntity<>(map, HttpStatus.UNAUTHORIZED);
-      }
-    } else {
+    if(userOpt.isEmpty()) {
       map.put("message", "User not found");
       return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+//      if(!user.getIsApproved()) {
+//        map.put("message", "User not verified");
+//        return new ResponseEntity<>(map, HttpStatus.UNAUTHORIZED);
+//      }
     }
+//    else {
+//      map.put("message", "User not found");
+//      return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+//    }
+
+    User currentUser = userOpt.get();
+    ERole currentUserRole = currentUser.getRoles().stream().findFirst().orElse(null).getName();
 
     Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
-    
+
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
     List<String> roles = userDetails.getAuthorities().stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.toList());
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
+
+    HttpSession session = request.getSession(true);
+    if (session != null) {
+      LoggedUser user = new LoggedUser(authentication.getName(), currentUser.getId(), currentUserRole, activeUserStore);
+      session.setAttribute("user", user);
+    }
 
     return ResponseEntity.ok(new JwtResponse(jwt,
-                         userDetails.getId(), 
-                         userDetails.getUsername(), 
-                         userDetails.getEmail(), 
-                         roles));
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getEmail(),
+            roles));
+  }
+
+  @PostMapping("/logout/{userId}")
+  public ResponseEntity<?> logout(@PathVariable("userId") Long userId, HttpServletRequest request) {
+//    try {
+//      // Invalidate the session
+//      request.getSession().invalidate();
+//
+//      // Clear authentication
+//      SecurityContextHolder.clearContext();
+//
+//      Map<String, String> map = new HashMap<>();
+//      map.put("message", "Logout successful");
+//      return ResponseEntity.ok(map);
+//    } catch (Exception e) {
+//      Map<String, String> map = new HashMap<>();
+//      map.put("message", "An error occurred during logout");
+//      return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+
+    HttpSession session = request.getSession();
+    if (session != null){
+      Map<Long, ERole> users = activeUserStore.getUsers();
+      users.remove(userId);
+      activeUserStore.setUsers(users);
+//      session.removeAttribute("user");
+    }
+
+    return ResponseEntity.ok("User logout successfully");
   }
 
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
       return ResponseEntity
-          .badRequest()
-          .body(new MessageResponse("Error: Username is already taken!"));
+              .badRequest()
+              .body(new MessageResponse("Error: Username is already taken!"));
     }
 
-    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity
-          .badRequest()
-          .body(new MessageResponse("Error: Email is already in use!"));
-    }
+//    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+//      return ResponseEntity
+//          .badRequest()
+//          .body(new MessageResponse("Error: Email is already in use!"));
+//    }
+
+//    if (!signUpRequest.getMobileVerified()) {
+//      return ResponseEntity
+//              .badRequest()
+//              .body(new MessageResponse("Error: Mobile is not verified!"));
+//    }
 
     // Create new user's account
     User user = new User(
             signUpRequest.getFirstName(),
             signUpRequest.getLastName(),
+            signUpRequest.getGender(),
             signUpRequest.getUsername(),
             signUpRequest.getEmail(),
             encoder.encode(signUpRequest.getPassword()),
@@ -115,17 +164,28 @@ public class AuthController {
             signUpRequest.getDob(),
             signUpRequest.getBirthTime(),
             signUpRequest.getBirthPlace(),
+            signUpRequest.getState(),
+            signUpRequest.getCity(),
             signUpRequest.getAstrologer(),
             signUpRequest.getAdmin(),
             signUpRequest.getApproved()
-            );
+    );
+    if(signUpRequest.getAstrologer()) {
+      Astrologer astrologer = new Astrologer();
+      astrologer.setQualification(signUpRequest.getQualification());
+      astrologer.setExperience(signUpRequest.getExperience());
+      astrologer.setAstrologerService(signUpRequest.getAstrologerService().equals("PAID") ? EAstrologerService.PAID : EAstrologerService.FREE);
+      astrologer.setFee(signUpRequest.getFee());
+      user.setAstrologer(astrologer);
+      astrologer.setUser(user);
+    }
 
     Set<String> strRoles = signUpRequest.getRole();
     Set<Role> roles = new HashSet<>();
 
     if (strRoles == null) {
       Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-          .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
@@ -152,16 +212,30 @@ public class AuthController {
     user.setRoles(roles);
     userRepository.save(user);
 
-    if(!signUpRequest.getAdmin() && signUpRequest.getApproved()) {
-      if(signUpRequest.getAstrologer()) {
-        Astrologer astrologer = new Astrologer();
-        astrologer.setUser(user);
-        astrologerRepository.save(astrologer);
-      } else {
-        Client client = new Client();
-        client.setUser(user);
-        clientRepository.save(client);
-      }
+//    if(!signUpRequest.getAdmin() && signUpRequest.getApproved()) {
+//      if(signUpRequest.getAstrologer()) {
+//        Astrologer astrologer1 = new Astrologer();
+//        astrologer1.setUser(user);
+//        astrologerRepository.save(astrologer1);
+//      } else {
+//        Client client = new Client();
+//        client.setUser(user);
+//        clientRepository.save(client);
+//      }
+//    }
+//    if(signUpRequest.getAstrologer()) {
+//      Astrologer astrologer1 = new Astrologer();
+//      astrologer1.setUser(user);
+//      astrologerRepository.save(astrologer1);
+//    } else {
+//      Client client = new Client();
+//      client.setUser(user);
+//      clientRepository.save(client);
+//    }
+    if(!signUpRequest.getAstrologer()) {
+      Client client = new Client();
+      client.setUser(user);
+      clientRepository.save(client);
     }
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));

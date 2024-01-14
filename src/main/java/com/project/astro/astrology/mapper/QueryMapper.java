@@ -5,12 +5,11 @@ import com.project.astro.astrology.dto.responseDto.QueryResponseDto;
 import com.project.astro.astrology.dto.responseDto.ReplyResponseDto;
 import com.project.astro.astrology.dto.responseDto.UserQueryResponseDto;
 import com.project.astro.astrology.model.Query;
-import com.project.astro.astrology.model.Reply;
 import com.project.astro.astrology.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -18,6 +17,9 @@ public interface QueryMapper extends CommonMapper<Query, QueryResponseDto>{
 
     @Mapping(target = "userQueryResponseDto", expression = "java(getUserQueryDto(query))")
     @Mapping(target = "replies", expression = "java(getReplyDtoList(query))")
+    @Mapping(target = "datetime", expression = "java(getDateFromTimestamp(query))")
+    @Mapping(target = "astrologerSeen", expression = "java(getAstrologerSeen(query))")
+    @Mapping(target = "clientSeen", expression = "java(getClientSeen(query))")
     QueryResponseDto entityToResponseDto(Query query);
     @Mapping(target = "user", expression = "java(setQueryUser(queryRequestDto))")
     Query requestDtoToEntity(QueryRequestDto queryRequestDto);
@@ -33,4 +35,16 @@ public interface QueryMapper extends CommonMapper<Query, QueryResponseDto>{
     default User setQueryUser(QueryRequestDto queryRequestDto) {
         return setUser(queryRequestDto.getUserId());
     }
+
+    default String getDateFromTimestamp(Query query) {
+        Date d = new Date(query.getDate().getTime());
+        return d.toString();
+    }
+    default Boolean getAstrologerSeen(Query query) {
+        return query.getAstrologerSeen();
+    }
+    default Boolean getClientSeen(Query query) {
+        return query.getClientSeen();
+    }
+
 }

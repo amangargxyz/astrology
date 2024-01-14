@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -11,7 +12,9 @@ import java.util.List;
 public class QueryResponseDto {
     private Long id;
     private String query;
-    private Timestamp date;
+    private String datetime;
     private UserQueryResponseDto userQueryResponseDto;
     private List<ReplyResponseDto> replies;
+    private Boolean astrologerSeen;
+    private Boolean clientSeen;
 }

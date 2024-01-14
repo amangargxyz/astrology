@@ -2,12 +2,14 @@ package com.project.astro.astrology.service.impl;
 
 import com.project.astro.astrology.dto.requestDto.ReplyRequestDto;
 import com.project.astro.astrology.mapper.ReplyMapper;
+import com.project.astro.astrology.model.Query;
 import com.project.astro.astrology.model.Reply;
 import com.project.astro.astrology.repository.ReplyRepository;
 import com.project.astro.astrology.service.ReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +24,9 @@ public class ReplyServiceImpl implements ReplyService {
 
     @Override
     public List<Reply> getAllReplies() {
-        return replyRepository.findAll();
+        List<Reply> replies = replyRepository.findAll();
+        replies.sort(Comparator.comparing(Reply::getDate).reversed());
+        return replies;
     }
 
     @Override
@@ -34,6 +38,13 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public Reply addReply(ReplyRequestDto replyRequestDto) {
         Reply reply = replyMapper.requestDtoToEntity(replyRequestDto);
+        if(replyRequestDto.getUserRole().equals("ROLE_ASTROLOGER")) {
+            reply.setAstrologerSeen(true);
+            reply.setClientSeen(false);
+        } else {
+            reply.setAstrologerSeen(false);
+            reply.setClientSeen(true);
+        }
         return replyRepository.save(reply);
     }
 
@@ -42,8 +53,18 @@ public class ReplyServiceImpl implements ReplyService {
         Optional<Reply> opt = replyRepository.findById(replyDto.getId());
         if(opt.isPresent()) {
             Reply oldReply = opt.get();
-            oldReply.setReply(replyDto.getReply());
-            oldReply.setDate(replyDto.getDate());
+            if(replyDto.getReply() != null && !replyDto.getReply().isEmpty()) {
+                oldReply.setReply(replyDto.getReply());
+            }
+            if(replyDto.getDate() != null) {
+                oldReply.setDate(replyDto.getDate());
+            }
+            if(replyDto.getUserRole() != null && replyDto.getUserRole().equals("ROLE_USER")) {
+                oldReply.setClientSeen(true);
+            }
+            if(replyDto.getUserRole() != null && replyDto.getUserRole().equals("ROLE_ASTROLOGER")) {
+                oldReply.setAstrologerSeen(true);
+            }
             replyRepository.save(oldReply);
 
             return true;

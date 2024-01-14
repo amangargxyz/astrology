@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -21,6 +19,8 @@ public class Query {
     private User user;
     private String query;
     private Timestamp date;
+    private Boolean astrologerSeen;
+    private Boolean clientSeen;
 
     @ToString.Exclude
     @ManyToMany(fetch = FetchType.LAZY,

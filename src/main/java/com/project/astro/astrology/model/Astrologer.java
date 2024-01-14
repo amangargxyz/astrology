@@ -11,6 +11,10 @@ public class Astrologer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String qualification;
+    private String experience;
+    private EAstrologerService astrologerService;
+    private String fee;
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")

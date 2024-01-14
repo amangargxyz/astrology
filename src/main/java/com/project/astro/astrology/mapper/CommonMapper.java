@@ -1,6 +1,5 @@
 package com.project.astro.astrology.mapper;
 
-import com.project.astro.astrology.dto.requestDto.QueryRequestDto;
 import com.project.astro.astrology.dto.responseDto.ReplyResponseDto;
 import com.project.astro.astrology.dto.responseDto.UserAstrologerResponseDto;
 import com.project.astro.astrology.dto.responseDto.UserClientResponseDto;
@@ -11,6 +10,7 @@ import com.project.astro.astrology.model.Role;
 import com.project.astro.astrology.model.User;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public interface CommonMapper<S, D> {
@@ -43,6 +43,7 @@ public interface CommonMapper<S, D> {
         userAstrologerResponseDto.setUsername(user.getUsername());
         userAstrologerResponseDto.setEmail(user.getEmail());
         userAstrologerResponseDto.setMobile(user.getMobile());
+        userAstrologerResponseDto.setIsApproved(user.getIsApproved());
 
         return userAstrologerResponseDto;
     }
@@ -66,8 +67,11 @@ public interface CommonMapper<S, D> {
             ReplyResponseDto responseDto = new ReplyResponseDto();
             responseDto.setId(reply.getId());
             responseDto.setReply(reply.getReply());
-            responseDto.setDate(reply.getDate());
+            Date d = new Date(reply.getDate().getTime());
+            responseDto.setDate(d.toString());
             responseDto.setUserQueryResponseDto(getUserQueryDto(reply.getUser()));
+            responseDto.setAstrologerSeen(reply.getAstrologerSeen());
+            responseDto.setClientSeen(reply.getClientSeen());
 
             repliesDtoList.add(responseDto);
         }

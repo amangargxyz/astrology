@@ -13,16 +13,16 @@ public class SignupRequest {
   @Size(max = 20)
   private String lastName;
 
+  private String gender;
+
   @NotBlank
   @Size(max = 20)
   private String username;
 
-  @NotBlank
   @Size(max = 50)
   @Email
   private String email;
 
-  @NotBlank
   @Size(max = 40)
   private String password;
 
@@ -34,6 +34,18 @@ public class SignupRequest {
 
   private String birthPlace;
 
+  private String state;
+
+  private String city;
+
+  private String qualification;
+
+  private String experience;
+
+  private String astrologerService;
+
+  private String fee;
+
   @JsonProperty
   private Boolean isAstrologer;
 
@@ -42,6 +54,17 @@ public class SignupRequest {
 
   @JsonProperty
   private Boolean isApproved;
+
+  @JsonProperty
+  private Boolean isMobileVerified;
+
+  public Boolean getMobileVerified() {
+    return isMobileVerified;
+  }
+
+  public void setMobileVerified(Boolean mobileVerified) {
+    isMobileVerified = mobileVerified;
+  }
 
   private Set<String> role;
 
@@ -59,6 +82,14 @@ public class SignupRequest {
 
   public void setLastName(String lastName) {
     this.lastName = lastName;
+  }
+
+  public String getGender() {
+    return gender;
+  }
+
+  public void setGender(String gender) {
+    this.gender = gender;
   }
 
   public String getUsername() {
@@ -115,6 +146,54 @@ public class SignupRequest {
 
   public void setBirthPlace(String birthPlace) {
     this.birthPlace = birthPlace;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void setState(String state) {
+    this.state = state;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getQualification() {
+    return qualification;
+  }
+
+  public void setQualification(String qualification) {
+    this.qualification = qualification;
+  }
+
+  public String getExperience() {
+    return experience;
+  }
+
+  public void setExperience(String experience) {
+    this.experience = experience;
+  }
+
+  public String getAstrologerService() {
+    return astrologerService;
+  }
+
+  public void setAstrologerService(String astrologerService) {
+    this.astrologerService = astrologerService;
+  }
+
+  public String getFee() {
+    return fee;
+  }
+
+  public void setFee(String fee) {
+    this.fee = fee;
   }
 
   public Boolean getAstrologer() {

@@ -97,9 +97,9 @@ public class UserServiceImpl implements UserService {
             user.setIsApproved(true);
             userRepository.save(user);
 
-            Astrologer astrologer = new Astrologer();
-            astrologer.setUser(user);
-            astrologerRepository.save(astrologer);
+//            Astrologer astrologer = new Astrologer();
+//            astrologer.setUser(user);
+//            astrologerRepository.save(astrologer);
         } else {
             return false;
         }

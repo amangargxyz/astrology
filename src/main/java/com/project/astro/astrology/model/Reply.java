@@ -19,4 +19,6 @@ public class Reply {
     private User user;
     private String reply;
     private Timestamp date;
+    private Boolean astrologerSeen;
+    private Boolean clientSeen;
 }

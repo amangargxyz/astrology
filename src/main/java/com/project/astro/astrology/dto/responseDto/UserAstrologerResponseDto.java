@@ -11,4 +11,5 @@ public class UserAstrologerResponseDto {
     private String username;
     private String email;
     private Long mobile;
+    private Boolean isApproved;
 }

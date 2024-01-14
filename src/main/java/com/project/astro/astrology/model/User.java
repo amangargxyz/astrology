@@ -2,7 +2,6 @@ package com.project.astro.astrology.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -19,8 +18,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = "username")
         })
 public class User {
     @Id
@@ -35,13 +33,13 @@ public class User {
     @Column(name="last_name")
     private String lastName;
 
+    private String gender;
+
     @NotBlank
     @Size(max = 20)
     private String username;
 
-    @NotBlank
     @Size(max = 50)
-    @Email
     private String email;
 
     @NotBlank
@@ -57,6 +55,9 @@ public class User {
 
     @Column(name="birth_place")
     private String birthPlace;
+
+    private String state;
+    private String city;
 
     @Column(name="is_astrologer")
     private Boolean isAstrologer;
@@ -83,10 +84,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(String firstName, String lastName, String username, String email, String password, Long mobile,
-                String dob, String birthTime, String birthPlace, Boolean isAstrologer, Boolean isAdmin, Boolean isApproved) {
+    public User(String firstName, String lastName, String gender, String username, String email, String password, Long mobile,
+                String dob, String birthTime, String birthPlace, String state, String city, Boolean isAstrologer,
+                Boolean isAdmin, Boolean isApproved) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.gender = gender;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -94,6 +97,8 @@ public class User {
         this.dob = dob;
         this.birthTime = birthTime;
         this.birthPlace = birthPlace;
+        this.state = state;
+        this.city = city;
         this.isAstrologer = isAstrologer;
         this.isAdmin = isAdmin;
         this.isApproved = isApproved;

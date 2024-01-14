@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -29,7 +30,8 @@ public interface AstrologerMapper extends CommonMapper<Astrologer, AstrologerRes
             QueryResponseDto responseDto = new QueryResponseDto();
             responseDto.setId(query.getId());
             responseDto.setQuery(query.getQuery());
-            responseDto.setDate(query.getDate());
+            Date d = new Date(query.getDate().getTime());
+            responseDto.setDatetime(d.toString());
             responseDto.setUserQueryResponseDto(getUserQueryDto(query.getUser()));
             responseDto.setReplies(getRepliesDtoList(query));
 
