@@ -83,7 +83,8 @@ public class WebSecurityConfig {
   @Bean
   public CorsFilter corsFilter() {
     CorsConfiguration corsConfig = new CorsConfiguration();
-    corsConfig.addAllowedOrigin("http://localhost:3000"); // Add the origin of your React app
+//    corsConfig.addAllowedOrigin("http://localhost:3000"); // Add the origin of your React app
+    corsConfig.addAllowedOrigin("http://3.26.8.123:3000"); // Add the origin of your React app
     corsConfig.addAllowedHeader("*"); // You can customize this to allow specific headers
     corsConfig.addAllowedMethod("*"); // You can customize this to allow specific HTTP methods
 
