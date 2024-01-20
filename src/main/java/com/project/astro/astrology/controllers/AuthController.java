@@ -240,4 +240,13 @@ public class AuthController {
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
+
+//  52. insert into roles table
+//  INSERT INTO astrology_test_db.`role` (id, name) VALUES (1, 'ROLE_ADMIN');
+//  INSERT INTO astrology_test_db.`role` (id, name) VALUES (2, 'ROLE_ASTROLOGER');
+//  INSERT INTO astrology_test_db.`role` (id, name) VALUES (3, 'ROLE_USER');
+//53. insert into users table, password - Admin!51
+//  INSERT INTO astrology_test_db.users (id, birth_place, birth_time, city, dob, email, first_name, is_admin, is_approved, is_astrologer, last_name, mobile, password, state, username, gender) VALUES (1, 'Gwalior', '12:00', 'Gwalior', '1980-01-01T18:30:00.000Z', 'amangargxyz@gmail.com', 'admin', 1, 1, 0, NULL, 9340121421, '$2a$10$HYenb2iDX2WyDIeb.HOyvuUngAylwyTOam/2woeMSV1XA8QaDQMMy', 'Madhya Pradesh', 'admin', 'male');
+//54. insert into user_roles table
+//  INSERT INTO astrology_test_db.user_roles (user_id, role_id) VALUES (1, 1);
 }
