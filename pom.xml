@@ -14,7 +14,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>astrology</name>
 	<description>Project for Astrology</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<properties>
 		<start-class>com.project.astro.astrology.AstrologyApplication</start-class>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
